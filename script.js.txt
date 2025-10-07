@@ -4,28 +4,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyButton = document.getElementById('copy-button');
     const copyMessage = document.getElementById('copy-message');
 
-    // ★修正点1: Quillのカスタムツールバーを設定
+    // ★修正点1: Quillのツールバー定義を簡素化し、クラス名を確実に指定
     const toolbarOptions = [
-        ['bold', 'italic'], // 太字、斜体（標準機能）
-        ['link'], // リンク（標準機能）
-        // カスタムボタン: CSSのクラス名と合わせる
-        ['custom-heading', 'custom-subheading', 'custom-link', 'custom-hr'] 
+        ['bold', 'italic'], 
+        ['link'], 
+        // カスタムボタンのクラス名リスト (CSSの.ql-XXXX:beforeと連携)
+        ['customheading', 'customsubheading', 'customlink', 'customhr'] 
     ];
 
-    // ★修正点2: Quillエディタの初期化
+    // ★修正点2: Quillエディタの初期化とカスタムハンドラーの定義
     const quill = new Quill('#editor-container', {
         theme: 'snow',
         modules: {
             toolbar: {
                 container: toolbarOptions,
                 handlers: {
-                    // ★重要★: カスタムボタンの動作を定義
-                    'custom-heading': () => insertCustomMarkup('見出し: ', 'heading'),
-                    'custom-subheading': () => insertCustomMarkup('小見出し: ', 'heading'),
-                    'custom-link': () => insertCustomMarkup(' (表示テキスト 「URL」 別窓)', 'link'),
-                    'custom-hr': () => insertCustomMarkup('\n---\n', 'hr'),
-                    // 標準のリンクボタンは、Quillが標準のHTMLタグを挿入するので無効化しても良い
-                    // 'link': function(value) { if (value) { this.quill.theme.tooltip.edit('link', 'https://'); } }
+                    // ★重要★: カスタムボタンの動作を定義 (クラス名とすべて小文字で一致させる)
+                    'customheading': () => insertCustomMarkup('見出し: ', 'heading'),
+                    'customsubheading': () => insertCustomMarkup('小見出し: ', 'heading'),
+                    'customlink': () => insertCustomMarkup(' (表示テキスト 「URL」 別窓)', 'link'),
+                    'customhr': () => insertCustomMarkup('\n---\n', 'hr'),
                 }
             }
         }
@@ -33,8 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * カスタムマークアップを挿入または選択範囲を置換するヘルパー関数
-     * @param {string} markup - 挿入するマークアップ記法
-     * @param {string} type - 記法のタイプ ('heading', 'link', 'hr')
      */
     function insertCustomMarkup(markup, type) {
         const range = quill.getSelection(true);
@@ -44,36 +40,29 @@ document.addEventListener('DOMContentLoaded', () => {
         let finalMarkup = '';
 
         if (type === 'heading') {
-            // 見出しの場合、選択テキストがある場合はそれを使い、行頭に挿入
             const textToInsert = selectedText || 'ここにタイトルを記述';
             finalMarkup = markup + textToInsert;
             
-            // 選択範囲を削除し、新しいマークアップを挿入
             quill.deleteText(range.index, range.length, Quill.sources.USER);
             quill.insertText(range.index, finalMarkup, Quill.sources.USER);
 
         } else if (type === 'link') {
-            // リンクの場合、選択テキストがある場合はそれを「表示テキスト」に使う
             const defaultText = selectedText || 'リンクテキスト';
             finalMarkup = ` (${defaultText} 「https://」 別窓)`;
             
-            // 選択範囲を削除し、新しいマークアップを挿入
             quill.deleteText(range.index, range.length, Quill.sources.USER);
             quill.insertText(range.index, finalMarkup, Quill.sources.USER);
 
         } else if (type === 'hr') {
-            // 区切り線の場合、単独行を挿入
             finalMarkup = markup;
             quill.insertText(range.index, finalMarkup, Quill.sources.USER);
         }
         
-        // カーソルを移動させる (任意)
         quill.setSelection(range.index + finalMarkup.length, range.index + finalMarkup.length, Quill.sources.SILENT);
     }
 
-    // ★修正点3: テキスト変更イベントを監視 (Quill専用)
+    // テキスト変更イベントを監視し、リアルタイム変換を実行
     quill.on('text-change', () => {
-        // Quillが内部で保持するプレーンテキスト（改行やスペースを保持）を取得
         const inputText = quill.getText();
         updateConversion(inputText);
     });
@@ -84,10 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateConversion(inputText) {
         const finalHtml = convertTextToHtml(inputText);
         
-        // プレビューエリアにHTMLとして挿入（リアルタイムプレビュー）
         previewArea.innerHTML = finalHtml;
-        
-        // 出力エリアにHTMLコードとして挿入
         outputHtmlArea.value = finalHtml;
     }
     
@@ -103,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const processParagraph = () => {
             if (currentParagraphLines.length > 0) {
                 let processedParagraph = currentParagraphLines.map(line => {
-                    let processedLine = line.trim(); // 行頭・行末の空白をトリム
+                    let processedLine = line.trim();
 
                     // 1. 太字の正規表現処理 (**)
                     processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -111,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 2. 固定スペースの正規表現処理 (___)
                     processedLine = processedLine.replace(/___/g, '&nbsp;&nbsp;&nbsp;');
                     
-                    // 3. リンクの正規表現処理 (スペースに注意)
+                    // 3. リンクの正規表現処理
                     const linkPattern = /\((.+?)\s*「(https?:\/\/[^\s」]+?)」(別窓)?\)/g;
                     processedLine = processedLine.replace(linkPattern, (match, displayText, url, isNewWindow) => {
                         const targetAttr = isNewWindow ? ' target="_blank"' : '';
@@ -119,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
 
                     return processedLine;
-                }).join('<br>\n'); // 段落内の改行は <br> に変換
+                }).join('<br>\n');
 
                 finalHtmlLines.push(`<p>${processedParagraph}</p>\n`);
                 currentParagraphLines = [];
@@ -142,17 +128,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 processParagraph();
                 finalHtmlLines.push('<hr>\n');
             } else if (trimmedLine === '') {
-                processParagraph(); // 空行の場合、現在の段落を閉じる
+                processParagraph();
             } else {
-                // 通常のテキスト行として段落配列に追加
-                currentParagraphLines.push(line); // トリムされていない行を保持 (段落内でのスペース維持のため)
+                // 通常のテキスト行として段落配列に追加 (行頭のスペースも保持するため、trimしない行をここで採用)
+                currentParagraphLines.push(line); 
             }
         }
 
-        // 最後に残っている段落があれば閉じる
         processParagraph();
         
-        // 全体を囲むdiv
         return `<div class="article-body-v2">\n${finalHtmlLines.join('')}</div>`;
     }
 

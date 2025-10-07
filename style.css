@@ -25,7 +25,7 @@ header {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Quillエディタのコンテナに高さを適用（index.htmlのインラインスタイルと連携） */
+/* Quillエディタのコンテナ */
 #editor-container {
     border: 1px solid #ccc;
     border-radius: 0 0 4px 4px;
@@ -75,7 +75,7 @@ header {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    clear: both; /* float解除 */
+    clear: both;
     margin-top: 20px;
 }
 
@@ -109,7 +109,13 @@ header {
 
 /* ★Quill カスタムボタンの見た目定義★ */
 /* QL_CLASSNAME:before に content: '表示名'; を設定してボタンテキストにする */
-.ql-custom-heading:before { content: '見出し'; }
-.ql-custom-subheading:before { content: '小見出し'; }
-.ql-custom-link:before { content: 'リンク'; }
-.ql-custom-hr:before { content: '区切り線'; }
+/* QL_CLASSNAMEはすべて小文字とハイフンに統一 */
+.ql-customheading:before { content: '見出し'; }
+.ql-ql-customsubheading:before { content: '小見出し'; }
+.ql-customlink:before { content: 'リンク'; }
+.ql-customhr:before { content: '区切り線'; }
+
+/* Quillのツールバーの標準的なスタイル */
+.ql-toolbar.ql-snow {
+    border-radius: 4px 4px 0 0;
+}
