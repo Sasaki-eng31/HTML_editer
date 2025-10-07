@@ -25,8 +25,15 @@ header {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* 入力エリアのスタイル */
-#input-text-area, #output-html-area {
+/* Quillエディタのコンテナに高さを適用（index.htmlのインラインスタイルと連携） */
+#editor-container {
+    border: 1px solid #ccc;
+    border-radius: 0 0 4px 4px;
+    background-color: #fff;
+}
+
+/* 出力エリアのスタイル */
+#output-html-area {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
@@ -44,26 +51,23 @@ header {
     padding: 15px;
     margin-top: 10px;
     overflow-y: auto;
-    /* article-body-v2 の基本的な要素スタイル */
 }
 
 /* ボタンのスタイル */
-button {
+#copy-button {
     padding: 10px 15px;
-    background-color: #FFA500; /* Gradioのオレンジ色を継承 */
+    background-color: #FFA500;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    float: right;
+    margin-top: -5px;
 }
 
-button:hover {
+#copy-button:hover {
     background-color: #E69500;
-}
-
-#generate-button {
-    width: 100%;
 }
 
 .output-section {
@@ -71,11 +75,8 @@ button:hover {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-#copy-button {
-    float: right;
-    margin-top: -5px;
+    clear: both; /* float解除 */
+    margin-top: 20px;
 }
 
 /* コピーメッセージ */
@@ -86,13 +87,10 @@ button:hover {
     font-weight: bold;
     visibility: hidden;
 }
-.hidden {
-    visibility: hidden;
-}
 
 /* プレビュー内のHTML要素の簡易スタイル */
 .article-body-v2 h2 {
-    border-bottom: 2px solid #333; /* 見出しの下線を再現 */
+    border-bottom: 2px solid #333; 
     padding-bottom: 5px;
     margin-top: 25px;
 }
@@ -102,9 +100,16 @@ button:hover {
 }
 .article-body-v2 strong {
     font-weight: bold;
-    color: #D35400; /* 太字を目立たせる */
+    color: #333; 
 }
 .article-body-v2 p {
     margin-bottom: 1em;
     line-height: 1.8;
 }
+
+/* ★Quill カスタムボタンの見た目定義★ */
+/* QL_CLASSNAME:before に content: '表示名'; を設定してボタンテキストにする */
+.ql-custom-heading:before { content: '見出し'; }
+.ql-custom-subheading:before { content: '小見出し'; }
+.ql-custom-link:before { content: 'リンク'; }
+.ql-custom-hr:before { content: '区切り線'; }

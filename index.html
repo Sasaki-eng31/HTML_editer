@@ -1,22 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ブログ記事 HTML 変換ツール (WYSIWYG対応)</title>
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <link rel="stylesheet" href="style.css">
-    <title>ブログ記事 HTML 変換ツール (WYSIWYG版)</title>
 </head>
 <body>
     <header>
         <h1>ブログ記事 HTML 変換ツール (WYSIWYG対応)</h1>
-        <p>左側のエディタで直接装飾・ボタン操作すると、リアルタイムにプレビューされます。</p>
+        <p>左側のエディタでテキストを選択し、ツールバーのボタンを押してマークアップを挿入してください。リアルタイムにプレビューされます。</p>
     </header>
 
     <div class="container">
         <div class="input-section">
-            <h2>1. エディタエリア (直接編集可能)</h2>
-            <div id="editor-container" style="height: 300px;"></div>
+            <h2>1. エディタエリア (直接編集・ボタン操作可能)</h2>
+            
+            <div id="editor-container" style="height: 350px;"></div>
             
             </div>
+
+        <div class="preview-section">
+            <h2>2. リアルタイム・プレビュー</h2>
+            <div id="preview-area" class="article-body-v2">
+                <p>ここに変換結果の見た目がリアルタイムで表示されます。</p>
+            </div>
         </div>
-    
-    </body>
+    </div>
+
+    <div class="output-section">
+        <h2>3. 生成されたHTMLコード</h2>
+        <textarea id="output-html-area" rows="10" readonly placeholder="HTMLコードはここに生成されます。"></textarea>
+        <button id="copy-button">HTMLコードをコピー</button>
+        <span id="copy-message" class="hidden">コピーしました！</span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <script src="script.js"></script>
+</body>
 </html>
