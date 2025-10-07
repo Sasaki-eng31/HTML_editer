@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ブログ記事 HTML 変換ツール (WYSIWYG対応)</title>
+    <title>ブログ記事 HTML 変換ツール (安定版)</title>
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>ブログ記事 HTML 変換ツール (WYSIWYG対応)</h1>
-        <p>左側のエディタでテキストを選択し、ツールバーのボタンを押してマークアップを挿入してください。リアルタイムにプレビューされます。</p>
+        <h1>ブログ記事 HTML 変換ツール (安定版)</h1>
+        <p>エディタで直接入力・**太字やリンクはボタンで**操作できます。見出し/区切り線は直接記法を入力してください。リアルタイムにプレビューされます。</p>
     </header>
 
     <div class="container">
         <div class="input-section">
-            <h2>1. エディタエリア (直接編集・ボタン操作可能)</h2>
-            
+            <h2>1. エディタエリア (直接編集可能)</h2>
+            <p class="guide">**＜変換ルール＞**<br>
+                ・**太字・リンク**: エディタ上部のボタンを使用してください。<br>
+                ・**見出し (h2)**: <code>見出し: テキスト</code> (直接入力)<br>
+                ・**小見出し (h3)**: <code>小見出し: テキスト</code> (直接入力)<br>
+                ・**区切り線 (hr)**: <code>---</code> (単独行で直接入力)
+            </p>
             <div id="editor-container" style="height: 350px;"></div>
             
         </div>

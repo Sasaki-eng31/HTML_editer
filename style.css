@@ -107,14 +107,6 @@ header {
     line-height: 1.8;
 }
 
-/* ★Quill カスタムボタンの見た目定義★ */
-/* QL_CLASSNAME:before に content: '表示名'; を設定してボタンテキストにする */
-/* QL_CLASSNAMEはすべて小文字とハイフンに統一 */
-.ql-customheading:before { content: '見出し'; }
-.ql-ql-customsubheading:before { content: '小見出し'; }
-.ql-customlink:before { content: 'リンク'; }
-.ql-customhr:before { content: '区切り線'; }
-
 /* Quillのツールバーの標準的なスタイル */
 .ql-toolbar.ql-snow {
     border-radius: 4px 4px 0 0;

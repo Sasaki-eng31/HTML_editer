@@ -4,115 +4,80 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyButton = document.getElementById('copy-button');
     const copyMessage = document.getElementById('copy-message');
 
-    // ★修正点1: Quillのツールバー定義を簡素化し、クラス名を確実に指定
+    // ★修正点: Quillのツールバー定義を標準機能のみに簡素化 (エラー回避)
     const toolbarOptions = [
         ['bold', 'italic'], 
         ['link'], 
-        // カスタムボタンのクラス名リスト (CSSの.ql-XXXX:beforeと連携)
-        ['customheading', 'customsubheading', 'customlink', 'customhr'] 
+        // 標準のツールバーに太字とリンクを含める
     ];
 
-    // ★修正点2: Quillエディタの初期化とカスタムハンドラーの定義
+    // Quillエディタの初期化
     const quill = new Quill('#editor-container', {
         theme: 'snow',
         modules: {
-            toolbar: {
-                container: toolbarOptions,
-                handlers: {
-                    // ★重要★: カスタムボタンの動作を定義 (クラス名とすべて小文字で一致させる)
-                    'customheading': () => insertCustomMarkup('見出し: ', 'heading'),
-                    'customsubheading': () => insertCustomMarkup('小見出し: ', 'heading'),
-                    'customlink': () => insertCustomMarkup(' (表示テキスト 「URL」 別窓)', 'link'),
-                    'customhr': () => insertCustomMarkup('\n---\n', 'hr'),
-                }
-            }
+            toolbar: toolbarOptions
+            // カスタムハンドラーを削除し、初期化エラーを防ぐ
         }
     });
 
-    /**
-     * カスタムマークアップを挿入または選択範囲を置換するヘルパー関数
-     */
-    function insertCustomMarkup(markup, type) {
-        const range = quill.getSelection(true);
-        if (!range) return;
-
-        let selectedText = quill.getText(range.index, range.length).trim();
-        let finalMarkup = '';
-
-        if (type === 'heading') {
-            const textToInsert = selectedText || 'ここにタイトルを記述';
-            finalMarkup = markup + textToInsert;
-            
-            quill.deleteText(range.index, range.length, Quill.sources.USER);
-            quill.insertText(range.index, finalMarkup, Quill.sources.USER);
-
-        } else if (type === 'link') {
-            const defaultText = selectedText || 'リンクテキスト';
-            finalMarkup = ` (${defaultText} 「https://」 別窓)`;
-            
-            quill.deleteText(range.index, range.length, Quill.sources.USER);
-            quill.insertText(range.index, finalMarkup, Quill.sources.USER);
-
-        } else if (type === 'hr') {
-            finalMarkup = markup;
-            quill.insertText(range.index, finalMarkup, Quill.sources.USER);
-        }
-        
-        quill.setSelection(range.index + finalMarkup.length, range.index + finalMarkup.length, Quill.sources.SILENT);
-    }
-
     // テキスト変更イベントを監視し、リアルタイム変換を実行
     quill.on('text-change', () => {
-        const inputText = quill.getText();
-        updateConversion(inputText);
+        // Quillが内部で保持するHTMLを取得
+        const quillHtml = quill.root.innerHTML;
+        updateConversion(quillHtml);
     });
     
     /**
      * 変換処理を実行し、UIを更新するメイン関数
      */
-    function updateConversion(inputText) {
-        const finalHtml = convertTextToHtml(inputText);
+    function updateConversion(quillHtml) {
+        // QuillのHTMLを、貴社専用の記法（見出し: や ---）と結合して最終変換
+        const finalHtml = convertQuillHtmlToCustomHtml(quillHtml);
         
         previewArea.innerHTML = finalHtml;
         outputHtmlArea.value = finalHtml;
     }
     
     /**
-     * 入力テキストをecbeing向けHTMLに変換します。（既存ロジック）
+     * Quillが出力したHTMLを貴社向けHTMLに変換する関数
      */
-    function convertTextToHtml(inputText) {
-        const lines = inputText.split('\n');
+    function convertQuillHtmlToCustomHtml(quillHtml) {
+        // Quillが出力したHTMLを、<p>タグで分割して処理する
+        // 見出しや区切り線はQuillのHTMLにはないので、手動で入力された記法を探す必要がある
+        
+        const lines = quillHtml.split('<p>');
         let finalHtmlLines = [];
         let currentParagraphLines = [];
 
-        // 段落処理関数（太字・スペース・リンクの置換を含む）
+        // QuillのHTMLをプレーンテキストに戻す関数（記法を探すため）
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = quillHtml;
+        const plainText = tempDiv.innerText || tempDiv.textContent;
+        
+        // プレーンテキストを行ごとに処理する（見出し、区切り線を探す）
+        const rawLines = plainText.split('\n');
+
         const processParagraph = () => {
-            if (currentParagraphLines.length > 0) {
-                let processedParagraph = currentParagraphLines.map(line => {
-                    let processedLine = line.trim();
-
-                    // 1. 太字の正規表現処理 (**)
-                    processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+             if (currentParagraphLines.length > 0) {
+                 let processedParagraph = currentParagraphLines.map(line => {
+                    // Quillが出力したHTML内で、太字とリンクを処理
+                    // Quillは太字を<strong>で出力するので、そのまま利用
                     
-                    // 2. 固定スペースの正規表現処理 (___)
-                    processedLine = processedLine.replace(/___/g, '&nbsp;&nbsp;&nbsp;');
+                    // 1. 固定スペースの正規表現処理 (___)
+                    // これはエディタ上でも直接入力してもらう
+                    line = line.replace(/___/g, '&nbsp;&nbsp;&nbsp;');
                     
-                    // 3. リンクの正規表現処理
-                    const linkPattern = /\((.+?)\s*「(https?:\/\/[^\s」]+?)」(別窓)?\)/g;
-                    processedLine = processedLine.replace(linkPattern, (match, displayText, url, isNewWindow) => {
-                        const targetAttr = isNewWindow ? ' target="_blank"' : '';
-                        return `<a href="${url.trim()}"${targetAttr}>${displayText.trim()}</a>`;
-                    });
+                    // 2. リンクの処理: Quillが出力した <a> タグをそのまま利用
+                    // 3. 太字の処理: Quillが出力した <strong>/<b> タグをそのまま利用
+                    return line;
+                 }).join('<br>\n'); // 段落内の改行は <br> に変換
 
-                    return processedLine;
-                }).join('<br>\n');
-
-                finalHtmlLines.push(`<p>${processedParagraph}</p>\n`);
-                currentParagraphLines = [];
-            }
+                 finalHtmlLines.push(`<p>${processedParagraph}</p>\n`);
+                 currentParagraphLines = [];
+             }
         };
 
-        for (const line of lines) {
+        for (const line of rawLines) {
             const trimmedLine = line.trim();
 
             if (trimmedLine.startsWith('見出し:')) {
@@ -128,21 +93,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 processParagraph();
                 finalHtmlLines.push('<hr>\n');
             } else if (trimmedLine === '') {
-                processParagraph();
+                processParagraph(); 
             } else {
-                // 通常のテキスト行として段落配列に追加 (行頭のスペースも保持するため、trimしない行をここで採用)
-                currentParagraphLines.push(line); 
+                // 通常のテキスト行として段落配列に追加
+                // QuillのHTMLをそのまま再利用
+                let processedLine = line;
+                
+                // ここで Quillの標準HTMLタグ (<b>, <a>) を含む行を処理
+                // 簡易的に太字とリンクのタグを保持する処理 (QuillのHTMLには元々含まれているはず)
+                processedLine = line.replace(/<strong[^>]*>([\s\S]*?)<\/strong>/g, '<strong>$1</strong>');
+                processedLine = processedLine.replace(/<b[^>]*>([\s\S]*?)<\/b>/g, '<strong>$1</strong>');
+                processedLine = processedLine.replace(/<a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g, (match, url, text) => {
+                    // Quillが出力した<a>タグをそのまま受け入れる
+                    return match;
+                });
+                
+                // --- を探して置き換え
+                processedLine = processedLine.replace(/___/g, '&nbsp;&nbsp;&nbsp;');
+                
+                currentParagraphLines.push(processedLine);
             }
         }
-
+        
         processParagraph();
+
+        // 最終的なHTMLを構築する際は、Quillが出力したHTMLから不要なタグを取り除く必要があります。
+        // ここでは、一旦プレーンテキストに戻して、記法に基づいて再構築するロジックを優先します。
+        
+        // 最後に残っている段落があれば閉じる
         
         return `<div class="article-body-v2">\n${finalHtmlLines.join('')}</div>`;
     }
 
     // 初期データの設定
-    quill.setText("編集したいテキストをここに入力します。\n\nテキストを選択してから、上のツールバーボタンを押してください。\n\n**太字** や (リンク 「URL」 別窓) は、ボタンか直接入力で作成できます。\n\n---");
-    updateConversion(quill.getText());
+    quill.setText("編集したいテキストをここに入力します。\n\n見出し: テスト見出し\n\n**太字** やリンクはツールバーボタンで操作できます。");
+    updateConversion(quill.root.innerHTML);
 
     // コピーボタンの処理
     copyButton.addEventListener('click', () => {
