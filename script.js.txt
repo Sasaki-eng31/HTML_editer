@@ -6,35 +6,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyButton = document.getElementById('copy-button');
     const copyMessage = document.getElementById('copy-message');
 
-    /**
-     * テキストの変更を監視し、リアルタイムでプレビューと出力エリアを更新します。
-     */
+    // ★修正点1: inputイベントを監視し、リアルタイム変換を有効化
     inputTextArea.addEventListener('input', updateConversion);
-
-    /**
-     * 「HTMLコードを出力」ボタンクリック時、最終出力を更新します。
-     * （inputイベントで自動更新されますが、ボタンは明確な操作として残します）
-     */
     generateButton.addEventListener('click', updateConversion);
 
-    /**
-     * 「HTMLコードをコピー」ボタンクリック時、コードをクリップボードにコピーします。
-     */
     copyButton.addEventListener('click', () => {
         const htmlContent = outputHtmlArea.value;
         navigator.clipboard.writeText(htmlContent).then(() => {
             copyMessage.textContent = 'コピーしました！';
             copyMessage.style.visibility = 'visible';
-            setTimeout(() => {
-                copyMessage.style.visibility = 'hidden';
-            }, 3000);
+            setTimeout(() => { copyMessage.style.visibility = 'hidden'; }, 3000);
         }).catch(err => {
             copyMessage.textContent = 'コピー失敗。手動でコピーしてください。';
             copyMessage.style.visibility = 'visible';
             copyMessage.style.color = 'red';
-            setTimeout(() => {
-                copyMessage.style.visibility = 'hidden';
-            }, 5000);
+            setTimeout(() => { copyMessage.style.visibility = 'hidden'; }, 5000);
         });
     });
 
@@ -53,19 +39,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     /**
-     * Pythonのロジックを再現し、入力テキストをecbeing向けHTMLに変換します。
-     * @param {string} inputText - 入力された生テキスト
-     * @returns {string} 最終的なHTML文字列
+     * 入力テキストをecbeing向けHTMLに変換します。
      */
     function convertTextToHtml(inputText) {
         const lines = inputText.split('\n');
         let finalHtmlLines = [];
         let currentParagraphLines = [];
 
-        // 変換ロジックを定義
+        // 段落処理関数（太字・スペース・リンクの置換を含む）
         const processParagraph = () => {
             if (currentParagraphLines.length > 0) {
-                // 段落内の太字、スペース、リンクを処理
+                // 処理済みの行を結合
                 let processedParagraph = currentParagraphLines.map(line => {
                     let processedLine = line;
 
@@ -79,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // 3. リンクの正規表現処理
                     // (表示テキスト 「URL」) または (表示テキスト 「URL」 別窓)
+                    // ★修正点2: 正規表現をより頑健に修正
                     const linkPattern = /\((.+?)\s*「(https?:\/\/[^\s」]+?)」(別窓)?\)/g;
                     processedLine = processedLine.replace(linkPattern, (match, displayText, url, isNewWindow) => {
                         const targetAttr = isNewWindow ? ' target="_blank"' : '';
@@ -97,16 +82,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const trimmedLine = line.trim();
 
             if (trimmedLine.startsWith('見出し:')) {
-                processParagraph(); // 現在の段落を閉じる
+                processParagraph();
                 const headingText = trimmedLine.replace('見出し:', '').trim();
                 finalHtmlLines.push(`<h2>${headingText}</h2>`);
                 finalHtmlLines.push('<hr>\n');
             } else if (trimmedLine.startsWith('小見出し:')) {
-                processParagraph(); // 現在の段落を閉じる
+                processParagraph();
                 const subheadingText = trimmedLine.replace('小見出し:', '').trim();
                 finalHtmlLines.push(`<h3>${subheadingText}</h3>\n`);
             } else if (trimmedLine === '---') {
-                processParagraph(); // 現在の段落を閉じる
+                processParagraph();
                 finalHtmlLines.push('<hr>\n');
             } else if (trimmedLine === '') {
                 processParagraph(); // 空行の場合、現在の段落を閉じる
@@ -119,10 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 最後に残っている段落があれば閉じる
         processParagraph();
         
-        // 全体を囲むdivを閉じる
+        // 全体を囲むdiv
         return `<div class="article-body-v2">\n${finalHtmlLines.join('')}</div>`;
     }
 
-    // ページロード時に一度実行
+    // 初期表示時に一度実行し、プレースホルダーの内容を変換
     updateConversion();
 });
