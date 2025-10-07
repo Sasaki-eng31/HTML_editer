@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ブログ記事 HTML 変換ツール (Netlify版)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>ブログ記事 HTML 変換ツール</h1>
+        <p>左側に入力すると、右側でリアルタイムにプレビューされます。最終HTMLコードを下部からコピーしてください。</p>
+    </header>
+
+    <div class="container">
+        <div class="input-section">
+            <h2>1. テキスト入力エリア (マークアップ記法を使用)</h2>
+            <textarea id="input-text-area" placeholder="見出し: タイトル
+小見出し: 小さなタイトル
+**太字にしたいテキスト**
+(表示テキスト 「https://example.com/url」 別窓)
+---
+ここに本文を入力してください。空行で段落になります。" rows="20"></textarea>
+            
+            <button id="generate-button">HTMLコードを出力</button>
+        </div>
+
+        <div class="preview-section">
+            <h2>2. リアルタイム・プレビュー</h2>
+            <div id="preview-area" class="article-body-v2">
+                プレビューはここに表示されます。
+            </div>
+        </div>
+    </div>
+
+    <div class="output-section">
+        <h2>3. 生成されたHTMLコード</h2>
+        <textarea id="output-html-area" rows="10" readonly placeholder="HTMLコードはここに生成されます。"></textarea>
+        <button id="copy-button">HTMLコードをコピー</button>
+        <span id="copy-message" class="hidden">コピーしました！</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.input-section, .preview-section {
+    flex: 1;
+    min-width: 45%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 入力エリアのスタイル */
+#input-text-area, #output-html-area {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* プレビューエリアのスタイル (ecbeing風の基本構造を再現) */
+#preview-area {
+    min-height: 300px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-top: 10px;
+    overflow-y: auto;
+    /* article-body-v2 の基本的な要素スタイル */
+}
+
+/* ボタンのスタイル */
+button {
+    padding: 10px 15px;
+    background-color: #FFA500; /* Gradioのオレンジ色を継承 */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #E69500;
+}
+
+#generate-button {
+    width: 100%;
+}
+
+.output-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#copy-button {
+    float: right;
+    margin-top: -5px;
+}
+
+/* コピーメッセージ */
+#copy-message {
+    display: inline-block;
+    padding: 8px;
+    color: green;
+    font-weight: bold;
+    visibility: hidden;
+}
+.hidden {
+    visibility: hidden;
+}
+
+/* プレビュー内のHTML要素の簡易スタイル */
+.article-body-v2 h2 {
+    border-bottom: 2px solid #333; /* 見出しの下線を再現 */
+    padding-bottom: 5px;
+    margin-top: 25px;
+}
+.article-body-v2 h3 {
+    margin-top: 20px;
+    color: #555;
+}
+.article-body-v2 strong {
+    font-weight: bold;
+    color: #D35400; /* 太字を目立たせる */
+}
+.article-body-v2 p {
+    margin-bottom: 1em;
+    line-height: 1.8;
+}
