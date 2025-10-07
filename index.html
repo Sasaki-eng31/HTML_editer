@@ -1,59 +1,22 @@
-<!DOCTYPE html>
-<html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ブログ記事 HTML 変換ツール (Netlify版)</title>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <link rel="stylesheet" href="style.css">
+    <title>ブログ記事 HTML 変換ツール (WYSIWYG版)</title>
 </head>
 <body>
     <header>
-        <h1>ブログ記事 HTML 変換ツール</h1>
-        <p>左側に入力すると、**リアルタイム**にプレビューされます。最終HTMLコードを下部からコピーしてください。</p>
+        <h1>ブログ記事 HTML 変換ツール (WYSIWYG対応)</h1>
+        <p>左側のエディタで直接装飾・ボタン操作すると、リアルタイムにプレビューされます。</p>
     </header>
 
     <div class="container">
         <div class="input-section">
-            <h2>1. テキスト入力エリアとマークアップ記法</h2>
-            <p class="guide">**＜変換ルール＞**<br>
-                ・**大見出し (h2)**: <code>見出し: テキスト</code> (自動でhrが挿入されます)<br>
-                ・**小見出し (h3)**: <code>小見出し: テキスト</code><br>
-                ・**太字 (strong)**: <code>**テキスト**</code><br>
-                ・**リンク**: <code>(表示テキスト 「URL」)</code><br>
-                ・**別窓リンク**: <code>(表示テキスト 「URL」 別窓)</code><br>
-                ・**区切り線 (hr)**: <code>---</code> (単独行)<br>
-                ・**固定スペース**: <code>___</code> (3つの&nbsp;に変換)
-            </p>
-            <textarea id="input-text-area" placeholder="例:
-
-見出し: 地産地匠アワードのエントリーについて
----
-**重要な**お知らせです。
-
-詳しくはこちら(詳細ページへ 「https://example.com/award」 別窓)よりご確認ください。
-
-小見出し: 次年度のエントリー
-次年度のエントリーは2026年4月です。
-" rows="20"></textarea>
+            <h2>1. エディタエリア (直接編集可能)</h2>
+            <div id="editor-container" style="height: 300px;"></div>
             
-            <button id="generate-button">HTMLコードを更新</button>
-        </div>
-
-        <div class="preview-section">
-            <h2>2. リアルタイム・プレビュー</h2>
-            <div id="preview-area" class="article-body-v2">
-                <p>ここに変換結果の見た目が**リアルタイム**で表示されます。</p>
             </div>
         </div>
-    </div>
-
-    <div class="output-section">
-        <h2>3. 生成されたHTMLコード</h2>
-        <textarea id="output-html-area" rows="10" readonly placeholder="HTMLコードはここに生成されます。"></textarea>
-        <button id="copy-button">HTMLコードをコピー</button>
-        <span id="copy-message" class="hidden">コピーしました！</span>
-    </div>
-
-    <script src="script.js"></script>
-</body>
+    
+    </body>
 </html>
